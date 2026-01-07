@@ -1,0 +1,49 @@
+@font-face {
+  font-family: "Fira Sans";
+  src: url(fonts/fira.woff2) format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fira Mono";
+  src: url(fonts/firaMono.woff2) format("woff2");
+  font-weight: normal;
+  font-style: monospace;
+  font-display: swap;
+}
+
+:root {
+  box-sizing: border-box;
+  overscroll-behavior: none;
+  user-select: none;
+}
+
+*,
+::before,
+::after {
+  box-sizing: inherit;
+}
+
+body {
+  align-items: center;
+  background-color: #16161d;
+  color: #f8f8d8;
+  display: flex;
+  font-family:
+    "Fira Sans", Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans",
+    source-sans-pro, sans-serif;
+  min-height: 100dvh;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  width: 100dvw;
+}
+
+code,
+pre {
+  font-family:
+    "Fira Mono", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo,
+    Consolas, "DejaVu Sans Mono", monospace;
+}
