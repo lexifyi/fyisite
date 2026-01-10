@@ -34,10 +34,6 @@ pub struct EventPayload {
 }
 
 pub async fn get_events(user_name: &str, authorization: &str) -> Result<Vec<Event>> {
-    env_logger::Builder::new()
-        .filter_level(log::LevelFilter::Debug)
-        .init();
-
     let client = reqwest::Client::builder()
         .user_agent("lexi.fyi backend")
         .build()?;

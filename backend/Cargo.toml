@@ -7,6 +7,7 @@ edition = "2024"
 anyhow = "1.0.100"
 chrono = { version = "0.4.42", features = ["serde"] }
 clap = { version = "4.5.54", features = ["derive"] }
+dirs = "6.0.0"
 env_logger = "0.11.8"
 futures-util = "0.3.31"
 headless_chrome = { git = "https://github.com/rust-headless-chrome/rust-headless-chrome", features = [
@@ -18,3 +19,4 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 tokio = { version = "1.49.0", features = ["full"] }
 tokio-tungstenite = { version = "0.28.0", features = ["native-tls"] }
+toml = { version = "0.9.11", features = ["serde"] }
