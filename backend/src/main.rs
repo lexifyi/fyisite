@@ -1,4 +1,5 @@
 mod bluesky;
+mod cli;
 mod config;
 mod garmin;
 mod github;

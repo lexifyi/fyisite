@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use futures_util::StreamExt as _;
-use headless_chrome::Browser;
 use serde::Deserialize;
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::Message;
@@ -15,16 +14,16 @@ struct JetstreamMessage {
 }
 
 #[derive(Debug, Deserialize)]
-struct JetstreamCommit {
-    operation: CommitOperation,
-    rkey: String,
+pub struct JetstreamCommit {
+    pub operation: CommitOperation,
+    pub rkey: String,
     #[serde(default)]
-    record: Option<PostRecord>,
+    pub record: Option<PostRecord>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-enum CommitOperation {
+pub enum CommitOperation {
     Create,
     Delete,
     Update,
@@ -32,12 +31,12 @@ enum CommitOperation {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct PostRecord {
-    created_at: DateTime<Utc>,
-    text: String,
+pub struct PostRecord {
+    pub created_at: DateTime<Utc>,
+    pub text: String,
 }
 
-async fn read_posts(did: &str, output_tx: mpsc::Sender<JetstreamCommit>) -> Result {
+pub async fn subscribe_to_posts(did: &str, output_tx: mpsc::Sender<JetstreamCommit>) -> Result {
     let (mut stream, _) = tokio_tungstenite::connect_async(
         format!("wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post&wantedDids={did}"),
     )
@@ -58,7 +57,9 @@ async fn read_posts(did: &str, output_tx: mpsc::Sender<JetstreamCommit>) -> Resu
             continue;
         };
 
-        output_tx.send(commit);
+        if output_tx.send(commit).await.is_err() {
+            break;
+        }
     }
 
     Ok(())

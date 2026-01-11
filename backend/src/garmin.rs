@@ -1,9 +1,14 @@
-use std::{sync::mpsc, thread::sleep, time::Duration};
+use std::{sync::mpsc, time::Duration};
 
 use headless_chrome::Browser;
 use serde::Deserialize;
 
 use crate::Result;
+
+pub struct Scraper {
+    browser: Browser,
+    user_uuid: String,
+}
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -37,28 +42,43 @@ pub struct ActivityType {
     pub parent_type_id: u32,
 }
 
-pub fn get_activities(browser: Browser, user_id: &str) -> Result<ResponseJson> {
-    let tab = browser.new_tab()?;
-    let (tx, rx) = mpsc::channel();
+impl Scraper {
+    pub fn new(user_uuid: impl Into<String>) -> Result<Self> {
+        Ok(Self {
+            browser: Browser::default()?,
+            user_uuid: user_uuid.into(),
+        })
+    }
 
-    let api_url =
-        format!("https://connect.garmin.com/gc-api/activitylist-service/activities/{user_id}");
+    pub async fn get_activities(&self) -> Result<ResponseJson> {
+        let browser = self.browser.clone();
+        let user_uuid = &self.user_uuid;
+        let html_url = format!("https://connect.garmin.com/app/profile/{user_uuid}");
+        let api_url = format!(
+            "https://connect.garmin.com/gc-api/activitylist-service/activities/{user_uuid}"
+        );
 
-    tab.register_response_handling(
-        "json guy",
-        Box::new(move |ev, fetch_body| {
-            if !ev.response.url.starts_with(&api_url) {
-                return;
-            }
+        tokio::task::spawn_blocking(move || {
+            let tab = browser.new_tab()?;
+            let (tx, rx) = mpsc::channel();
 
-            let _ = tx.send(
-                fetch_body()
-                    .and_then(|b| serde_json::from_str(&b.body).map_err(anyhow::Error::from)),
-            );
-        }),
-    )?;
+            tab.register_response_handling(
+                "girl in your walls reading your json",
+                Box::new(move |ev, fetch_body| {
+                    if !ev.response.url.starts_with(&api_url) {
+                        return;
+                    }
 
-    tab.navigate_to(&format!("https://connect.garmin.com/app/profile/{user_id}"))?;
+                    let output = fetch_body()
+                        .and_then(|b| serde_json::from_str(&b.body).map_err(anyhow::Error::from));
+                    let _ = tx.send(output);
+                }),
+            )?;
 
-    rx.recv_timeout(Duration::from_secs(15))?
+            tab.navigate_to(&html_url)?;
+            rx.recv_timeout(Duration::from_secs(15))?
+        })
+        .await
+        .unwrap()
+    }
 }

@@ -1,7 +1,15 @@
+use std::fmt::Display;
+
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
 use crate::Result;
+
+pub struct Client {
+    reqwest: reqwest::Client,
+    user_name: String,
+    authorization: String,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct Event {
@@ -33,19 +41,27 @@ pub struct EventPayload {
     pub before: Option<String>,
 }
 
-pub async fn get_events(user_name: &str, authorization: &str) -> Result<Vec<Event>> {
-    let client = reqwest::Client::builder()
-        .user_agent("lexi.fyi backend")
-        .build()?;
+impl Client {
+    pub fn new(user_name: impl Into<String>, auth_token: impl Display) -> Result<Self> {
+        Ok(Self {
+            reqwest: reqwest::Client::builder()
+                .user_agent("lexi.fyi backend")
+                .build()?,
+            user_name: user_name.into(),
+            authorization: format!("Bearer {auth_token}"),
+        })
+    }
 
-    let res = client
-        .get(format!("https://api.github.com/users/{user_name}/events"))
-        .header("Authorization", authorization)
-        .send()
-        .await?;
+    pub async fn get_events(&self) -> Result<Vec<Event>> {
+        let path = format!("https://api.github.com/users/{}/events", &self.user_name);
+        let req = self
+            .reqwest
+            .get(path)
+            .header("Authorization", &self.authorization);
+        let res = req.send().await?;
+        let body = res.text().await?;
+        let events: Vec<Event> = serde_json::from_str(&body)?;
 
-    let text = res.text().await?;
-    let events: Vec<Event> = serde_json::from_str(&text)?;
-
-    Ok(events)
+        Ok(events)
+    }
 }
