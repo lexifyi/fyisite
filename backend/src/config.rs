@@ -6,6 +6,7 @@ use crate::Result;
 
 #[derive(Debug, Default, Deserialize)]
 pub struct Config {
+    pub postgres: String,
     #[serde(default)]
     pub garmin: Option<GarminConfig>,
     #[serde(default)]
