@@ -1,14 +1,21 @@
-import type { ComponentChildren } from "preact";
 import { render } from "preact";
+import { Redirect, Route, Switch } from "wouter-preact";
+import { FeedbackPage } from "./pages/feedback";
+import { LandingPage } from "./pages/landing";
 
 const appRoot = document.getElementById("appRoot")!;
 
-function Landing(): ComponentChildren {
-  return (
-    <code style={{ fontSize: "24px" }}>
-      i'm lexi and fyi this is my website
-    </code>
-  );
-}
-
-render(<Landing />, appRoot);
+render(
+  <Switch>
+    <Route path="/feedback">
+      <FeedbackPage />
+    </Route>
+    <Route path="/">
+      <LandingPage />
+    </Route>
+    <Route>
+      <Redirect to="/" />
+    </Route>
+  </Switch>,
+  appRoot,
+);
