@@ -34,6 +34,7 @@ body {
   font-family:
     "Fira Sans", Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans",
     source-sans-pro, sans-serif;
+  font-size: 16px;
   min-height: 100dvh;
   justify-content: center;
   line-height: 1;
@@ -46,4 +47,14 @@ pre {
   font-family:
     "Fira Mono", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo,
     Consolas, "DejaVu Sans Mono", monospace;
+}
+
+input[type="text"],
+textarea {
+  background: rgba(255 255 255 / 15%);
+  border: none;
+  border-radius: 4px;
+  color: inherit;
+  font: inherit;
+  padding: 0.5em;
 }
